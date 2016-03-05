@@ -33,13 +33,13 @@ object HomeAway extends Controller {
   }
 
   def listing(listingId: String) = Action.async {
-    val params = Map(
+    val params = List(
       "id" -> listingId,
       "q" -> "DETAILS",
       "q" -> "LOCATION",
       "q" -> "PHOTOS",
       "q" -> "REVIEWS"
-    ).toList
+    )
 
     WS.url(s"${HomeAwayBase}listing").withHeaders(headers: _*).withQueryString(params: _*).get().map { response =>
       Ok(response.json)
