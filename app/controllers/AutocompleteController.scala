@@ -17,7 +17,10 @@ object AutocompleteController extends Controller {
     WS.url(s"http://partners.api.skyscanner.net/apiservices/hotels/autosuggest/v2/DE/EUR/en-US/$term")
       .withQueryString("apiKey" -> apiKey)
       .get()
-      .map(_.json.as[AutocompleteResponse](autocompleteResponseFormat))
+      .map { res =>
+        if (res.status != OK) throw new RuntimeException(s"Skyscanner responded with ${res.status} ${res.body}")
+        else res
+      }.map(_.json.as[AutocompleteResponse](autocompleteResponseFormat))
       .map(_.places.map(_.city_name))
       .map(Json.toJson(_))
       .map(Ok(_))
