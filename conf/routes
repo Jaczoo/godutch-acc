@@ -5,6 +5,7 @@ GET     /accomodation               controllers.HomeAway.listings(location : Str
 GET     /listing/:listingId         controllers.HomeAway.listing(listingId: String)
 GET     /quote                      controllers.HomeAway.quote(listingId: String, unitId: String, departureDate: String, arrivalDate: String, noOfPeople: String)
 GET     /autocomplete               controllers.AutocompleteController.autocomplete(term: String)
-POST    /createOffer                controllers.BookingController.createOffer(listingId: String, unitId: String, checkin: String, checkout: String, owner: String)
+POST    /createBooking              controllers.BookingController.createBooking(listingId: String, unitId: String, checkin: String, checkout: String, owner: String)
 GET     /getNotification            controllers.NotificationController.getNotification(user: String)
 POST    /setNotificationSeen        controllers.NotificationController.setNotificationSeen(user: String, offerId: Long)
+GET     /getBookings                controllers.BookingController.getBookings(user: String)
