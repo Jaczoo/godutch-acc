@@ -3,4 +3,4 @@ GET     /assets/*file               controllers.Assets.versioned(path="/public",
 
 GET     /accomodation               controllers.HomeAway.listings(location : String, checkInDate: String, checkOutDate: String, noOfPeople: Option[String])
 GET     /autocomplete               controllers.AutocompleteController.autocomplete(term: String)
-GET     /createOffer                controllers.BookingController.createOffer(listingId: String, unitId: String, checkin: String, checkout: String)
+POST    /createOffer                controllers.BookingController.createOffer(listingId: String, unitId: String, checkin: String, checkout: String, owner: String)
