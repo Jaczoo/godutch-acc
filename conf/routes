@@ -2,4 +2,6 @@
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
 
 GET     /accomodation               controllers.HomeAway.listings(location : String, checkInDate: String, checkOutDate: String, noOfPeople: Option[String])
+GET     /listing/:listingId         controllers.HomeAway.listing(listingId: String)
+GET     /quote                      controllers.HomeAway.quote(listingId: String, unitId: String, departureDate: String, arrivalDate: String, noOfPeople: String)
 GET     /autocomplete               controllers.AutocompleteController.autocomplete(term: String)
