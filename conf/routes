@@ -6,3 +6,4 @@ GET     /listing/:listingId         controllers.HomeAway.listing(listingId: Stri
 GET     /quote                      controllers.HomeAway.quote(listingId: String, unitId: String, departureDate: String, arrivalDate: String, noOfPeople: String)
 GET     /autocomplete               controllers.AutocompleteController.autocomplete(term: String)
 POST    /createOffer                controllers.BookingController.createOffer(listingId: String, unitId: String, checkin: String, checkout: String, owner: String)
+GET     /getNotification            controllers.NotificationController.getNotification(user: String)
