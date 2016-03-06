@@ -29,8 +29,8 @@ object BookingController extends Controller {
 
   def getBookings(user: String) = Action.async {
     val groupBookings = for {
-      bookingsWithId <- getUserBookings(user)
-      groupBookings <- Future.traverse(bookingsWithId)(getGroupBooking)
+      bookings <- getUserBookings(user)
+      groupBookings <- Future.traverse(bookings)(getGroupBooking)
     } yield groupBookings
     groupBookings.map(Json.toJson(_)).map(Ok(_))
   }
@@ -42,11 +42,11 @@ object BookingController extends Controller {
     }
   }
 
-  private def getGroupBooking(bookingWithId: BookingWithId): Future[GroupBooking] =
-    getCommitments(bookingWithId.id).map(GroupBooking(bookingWithId.booking, _))
+  private def getGroupBooking(booking: Booking): Future[GroupBooking] =
+    getCommitments(booking.id.get).map(GroupBooking(booking, _))
 
   private def createBookingOnly(booking: Booking): Future[Long] = Future {
-    val Booking(listingId: String, unitId: String, checkin: String, checkout: String, headline, initialPrice, sleeps) = booking
+    val Booking(_, listingId: String, unitId: String, checkin: String, checkout: String, headline, initialPrice, sleeps) = booking
     DB.withConnection { implicit connection =>
       SQL"""INSERT INTO bookings (listing_id, unit_id, checkin, checkout, headline, initial_price, sleeps)
          values ($listingId, $unitId, $checkin, $checkout, $headline, $initialPrice, $sleeps)""".executeInsert[Option[Long]]()
@@ -65,11 +65,11 @@ object BookingController extends Controller {
            values ($bookingId, $user, $isPackLeader, $isPackLeader)""".execute()
   }
 
-  private def getUserBookings(user: String): Future[List[BookingWithId]] = Future {
+  private def getUserBookings(user: String): Future[List[Booking]] = Future {
     DB.withConnection { implicit connection =>
       SQL"""SELECT bookings.id, listing_id, unit_id, checkin, checkout, headline, initial_price, sleeps
             FROM bookings JOIN user_bookings on bookings.id = booking_id
-            WHERE user_email = $user""".as(bookingWithIdParser.*)
+            WHERE user_email = $user""".as(bookingParser.*)
     }
   }
 
@@ -88,9 +88,8 @@ object BookingController extends Controller {
 }
 
 object BookingModels {
-  case class Booking(listingId: String, unitId: String, checkin: String, checkout: String,
+  case class Booking(id: Option[Long], listingId: String, unitId: String, checkin: String, checkout: String,
                      headline: String, initialPrice: Double, sleeps: Int)
-  case class BookingWithId(id: Long, booking: Booking)
 
   case class Guests(packLeader: String, bros: List[String])
   case class BookingRequest(booking: Booking, guests: Guests)
@@ -105,10 +104,10 @@ object BookingModels {
   implicit val commitmentFormat: Format[Commitment] = Json.format[Commitment]
   implicit val groupBookingFormat: Format[GroupBooking] = Json.format[GroupBooking]
 
-  val bookingWithIdParser = long("id") ~ str("listing_id") ~ str("unit_id") ~ str("checkin") ~ str("checkout") ~
+  val bookingParser = long("id") ~ str("listing_id") ~ str("unit_id") ~ str("checkin") ~ str("checkout") ~
     str("headline") ~ double("initial_price") ~ int("sleeps") map {
       case id ~ listingId ~ unitId ~ checkin ~ checkout ~ headline ~ initialPrice ~ sleeps =>
-        BookingWithId(id, Booking(listingId, unitId, checkin, checkout, headline, initialPrice, sleeps))
+        Booking(Some(id), listingId, unitId, checkin, checkout, headline, initialPrice, sleeps)
     }
 
   val commitmentParser = str("user_email") ~ bool("committed") map {
