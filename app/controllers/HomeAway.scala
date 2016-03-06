@@ -1,10 +1,10 @@
 package controllers
 
+import play.api.Play.current
 import play.api.libs.ws.WS
 import play.api.mvc.{Action, Controller}
+
 import scala.concurrent.ExecutionContext.Implicits.global
-import play.api.Play.current
-import scala.concurrent.Future
 import scala.util.control.NonFatal
 
 /**
