@@ -35,6 +35,13 @@ object BookingController extends Controller {
     groupBookings.map(Json.toJson(_)).map(Ok(_))
   }
 
+  def commit(user: String, bookingId: Long) = Action.async {
+    commitUser(user, bookingId).map { updated =>
+      if (updated > 0) Ok(s"$user just committed to booking ID $bookingId")
+      else NotFound(s"No booking found for combination $user booking ID $bookingId")
+    }
+  }
+
   private def getGroupBooking(bookingWithId: BookingWithId): Future[GroupBooking] =
     getCommitments(bookingWithId.id).map(GroupBooking(bookingWithId.booking, _))
 
@@ -69,6 +76,13 @@ object BookingController extends Controller {
   private def getCommitments(bookingId: Long): Future[List[Commitment]] = Future {
     DB.withConnection { implicit connection =>
       SQL"""SELECT user_email, committed FROM user_bookings where booking_id = $bookingId""".as(commitmentParser.*)
+    }
+  }
+
+  private def commitUser(user: String, bookingId: Long): Future[Int] = Future {
+    DB.withConnection { implicit connection =>
+      SQL"""UPDATE user_bookings SET committed = TRUE
+            WHERE user_email = $user AND booking_id = $bookingId""".executeUpdate()
     }
   }
 }

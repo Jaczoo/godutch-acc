@@ -9,3 +9,4 @@ POST    /createBooking              controllers.BookingController.createBooking
 GET     /getNotification            controllers.NotificationController.getNotification(user: String)
 POST    /setNotificationSeen        controllers.NotificationController.setNotificationSeen(user: String, bookingId: Long)
 GET     /getBookings                controllers.BookingController.getBookings(user: String)
+POST    /commit                     controllers.BookingController.commit(user: String, bookingId: Long)
